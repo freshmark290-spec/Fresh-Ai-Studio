@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fresh AI Studio</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:white;font-family:Arial,sans-serif}
+header{padding:20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #292929}
+.logo{font-size:25px;font-weight:bold}
+.logo span{color:#ff7900}
+main{padding:20px;max-width:1000px;margin:auto}
+h2{font-size:25px}
+.tools{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.tool{background:#191919;border:1px solid #333;border-radius:15px;padding:20px;cursor:pointer;color:white;text-align:left}
+.tool.active{border:2px solid #ff7900}
+.tool .emoji{font-size:30px}
+.tool h3{margin-bottom:5px}
+.tool p{color:#aaa;font-size:13px}
+.panel{background:#191919;padding:20px;border-radius:16px;margin-top:25px}
+.upload{border:2px dashed #555;border-radius:12px;padding:25px;text-align:center;margin:15px 0}
+.upload input{max-width:100%}
+textarea{width:100%;height:100px;background:#101010;color:white;border:1px solid #444;border-radius:10px;padding:13px;font-size:15px}
+button{background:#ff7900;color:white;border:0;padding:14px 20px;border-radius:10px;font-weight:bold;cursor:pointer}
+.generate{width:100%;margin-top:15px;font-size:16px}
+select{width:100%;background:#101010;color:white;border:1px solid #444;padding:13px;border-radius:9px;margin:10px 0}
+#preview{max-width:100%;max-height:250px;margin-top:15px;border-radius:10px;display:none}
+#status{color:#ffb36d;margin-top:15px;white-space:pre-wrap}
+.project{background:#202020;padding:15px;border-radius:10px;margin:10px 0;overflow-wrap:anywhere}
+.small{color:#aaa;font-size:13px}
+footer{text-align:center;color:#777;padding:30px}
+@media(min-width:650px){.tools{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">FRESH <span>AI</span> STUDIO</div>
+<div>✦ AI CREATIVE STUDIO</div>
+</header>
+
+<main>
+<h2>Create Something Amazing</h2>
+<p class="small">Your personal AI video and image creation studio.</p>
+
+<h2>Explore Tools</h2>
+<div class="tools">
+<button class="tool active" data-mode="image-to-video">
+<div class="emoji">🎬</div>
+<h3>Image to Video</h3>
+<p>Animate your pictures.</p>
+</button>
+<button class="tool" data-mode="text-to-video">
+<div class="emoji">✨</div>
+<h3>Text to Video</h3>
+<p>Create videos from ideas.</p>
+</button>
+<button class="tool" data-mode="photo-edit">
+<div class="emoji">🖼️</div>
+<h3>Edit Photo</h3>
+<p>Transform your pictures.</p>
+</button>
+<button class="tool" data-mode="avatar">
+<div class="emoji">👤</div>
+<h3>AI Avatar</h3>
+<p>Create animated characters.</p>
+</button>
+<button class="tool" data-mode="voice">
+<div class="emoji">🎙️</div>
+<h3>AI Voice-over</h3>
+<p>Add narration to your content.</p>
+</button>
+<button class="tool" data-mode="video-edit">
+<div class="emoji">🎞️</div>
+<h3>Edit Video</h3>
+<p>Work with your videos.</p>
+</button>
+</div>
+
+<section class="panel">
+<h2 id="toolTitle">Image to Video</h2>
+<p class="small" id="toolDescription">Upload a picture and describe how you want it animated.</p>
+
+<div class="upload" id="uploadArea">
+<p>📤 Upload your image or video</p>
+<input type="file" id="media" accept="image/*">
+<img id="preview" alt="Your uploaded image">
+</div>
+
+<label>Your creative prompt</label>
+<textarea id="prompt" placeholder="Describe the video or image you want to create..."></textarea>
+
+<label>Video duration</label>
+<select id="duration">
+<option value="5">5 seconds</option>
+<option value="10">10 seconds</option>
+</select>
+
+<label>Aspect ratio</label>
+<select id="ratio">
+<option value="16:9">Landscape 16:9</option>
+<option value="9:16">Portrait 9:16</option>
+<option value="1:1">Square 1:1</option>
+</select>
+
+<button class="generate" id="generate">✦ Generate with AI</button>
+<div id="status"></div>
+<div id="result"></div>
+</section>
+
+<section class="panel">
+<h2>My Projects</h2>
+<p class="small">Your recent creation requests.</p>
+<div id="projects"></div>
+</section>
+</main>
+
+<footer>FRESH AI STUDIO © 2026<br>Created for creativity.</footer>
+
+<script>
+let mode="image-to-video";
+let selectedFile=null;
+
+const descriptions={
+"image-to-video":"Upload a picture and describe how you want it animated.",
+"text-to-video":"Describe your imagination and turn it into a video.",
+"photo-edit":"Upload a photo and describe the changes you want.",
+"avatar":"Upload a picture and describe your avatar.",
+"voice":"Describe the narration you want to create.",
+"video-edit":"Upload a video and describe the changes you want."
+};
+
+document.querySelectorAll(".tool").forEach(button=>{
+button.addEventListener("click",()=>{
+document.querySelectorAll(".tool").forEach(b=>b.classList.remove("active"));
+button.classList.add("active");
+mode=button.dataset.mode;
+document.getElementById("toolTitle").textContent=button.querySelector("h3").textContent;
+document.getElementById("toolDescription").textContent=descriptions[mode];
+document.getElementById("status").textContent="";
+});
+});
+
+document.getElementById("media").addEventListener("change",e=>{
+selectedFile=e.target.files[0];
+const preview=document.getElementById("preview");
+if(selectedFile && selectedFile.type.startsWith("image/")){
+preview.src=URL.createObjectURL(selectedFile);
+preview.style.display="block";
+}else{
+preview.style.display="none";
+}
+});
+
+function loadProjects(){
+const projects=JSON.parse(localStorage.getItem("freshProjects")||"[]");
+document.getElementById("projects").innerHTML=projects.length?
+projects.map(p=>`<div class="project"><b>${p.mode}</b><p>${p.prompt}</p><span class="small">${p.date}</span></div>`).join("")
+:"<p class='small'>Your projects will appear here.</p>";
+}
+
+document.getElementById("generate").addEventListener("click",async()=>{
+const prompt=document.getElementById("prompt").value.trim();
+const status=document.getElementById("status");
+const result=document.getElementById("result");
+
+if(!prompt){
+status.textContent="Please enter a creative prompt.";
+return;
+}
+
+if(["image-to-video","photo-edit","avatar","video-edit"].includes(mode)&&!selectedFile){
+status.textContent="Please upload a file first.";
+return;
+}
+
+status.textContent="Connecting to Fresh AI Studio server...";
+result.innerHTML="";
+
+const form=new FormData();
+form.append("mode",mode);
+form.append("prompt",prompt);
+form.append("duration",document.getElementById("duration").value);
+form.append("ratio",document.getElementById("ratio").value);
+if(selectedFile)form.append("file",selectedFile);
+
+try{
+const response=await fetch("/api/generate",{
+method:"POST",
+body:form
+});
+const data=await response.json();
+if(!response.ok)throw new Error(data.error||"Generation failed.");
+
+status.textContent="Your generation request was submitted!";
+if(data.video_url){
+result.innerHTML=`<video controls style="width:100%;margin-top:15px;border-radius:12px" src="${data.video_url}"></video>`;
+}
+if(data.image_url){
+result.innerHTML=`<img style="width:100%;margin-top:15px;border-radius:12px" src="${data.image_url}" alt="Generated image">`;
+}
+
+}catch(error){
+status.textContent="Server response: "+error.message;
+}
+});
+
+loadProjects();
+</script>
+</body>
+</html>
