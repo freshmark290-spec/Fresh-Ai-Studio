@@ -106,7 +106,7 @@ app.post("/api/generate", upload.single("file"), async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Generation error:", error.message);
+    console.error("Generation error details:", error);
 
     res.status(500).json({
       error: error.message || "Video generation failed."
